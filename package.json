@@ -1,0 +1,30 @@
+{
+  "name": "oneq",
+  "version": "1.0.0",
+  "description": "Nuxt.js project",
+  "author": "gucchi43 <acmican43@gmail.com>",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "precommit": "npm run lint"
+  },
+  "dependencies": {
+    "canvg": "^1.5.3",
+    "firebase": "^6.0.2",
+    "nuxt": "^2.0.0",
+    "nuxt-buefy": "^0.3.6",
+    "shortid": "^2.2.14",
+    "vue-uuid": "^1.1.1"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "eslint": "^4.19.1",
+    "eslint-friendly-formatter": "^4.0.1",
+    "eslint-loader": "^2.1.1",
+    "eslint-plugin-vue": "^4.0.0"
+  }
+}
