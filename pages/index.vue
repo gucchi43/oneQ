@@ -63,6 +63,14 @@
       Twitterでシェアする
     </button>
   </div>
+  <div>
+    <button @click="twitterLogin" class="button is-info">
+      Twitterでログインする
+    </button>
+    <button @click="logout" class="button is-info">
+      ログアウトする
+    </button>
+  </div>
 </div>
 </template>
 
@@ -174,6 +182,48 @@ export default {
           //Strage保存失敗
           .catch(err => console.console.log(err))
       })
+    },
+    twitterLogin() {
+      var provider = new firebase.auth.TwitterAuthProvider();
+      firebase.auth().signInWithPopup(provider).then(function(result) {
+        // This gives you a the Twitter OAuth 1.0 Access Token and Secret.
+        // You can use these server side with your app's credentials to access the Twitter API.
+        var token = result.credential.accessToken;
+        var secret = result.credential.secret;
+        var user = result.user;
+        var photoUrl = user.photoURL
+        var displayName = user.displayName
+        var uid = user.uid
+        // fireStore users に保存
+        db.collection("users").doc(uid).set({
+          name: displayName,
+          profileUrl: photoUrl
+        })
+        .then(function() {
+          console.log("Document successfully written!");
+        })
+        .catch(function(error) {
+          console.error("Error writing document: ", error);
+        });
+      }).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // The email of the user's account used.
+        var email = error.email;
+        // The firebase.auth.AuthCredential type that was used.
+        var credential = error.credential;
+        // ...
+       });
+    },
+    logout() {
+      firebase.auth().signOut().then(function() {
+        // Sign-out successful.
+        console.log("logout success!! ");
+      }).catch(function(error) {
+        // An error happened.
+        console.error();
+      });
     },
     twitterShare() {
       location.href = "https://twitter.com/intent/tweet?text=" + this.msg + "&hashtags=" + "oneQ,ワンキュー," + this.question + "&url=" + this.shareUrl
