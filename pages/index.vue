@@ -67,24 +67,12 @@
 </template>
 
 <script>
-import firebase from 'firebase'
+import firebase from '~/plugins/firebase'
 import canvg from 'canvg'
 import shortid from 'shortid'
 //  // Set the configuration for your app
 //   // TODO: Replace with your project's config object
-var config = {
-  apiKey: "AIzaSyDlMpLGVzjnPyLlx5f7q8p9_aNNrjtqpVA",
-  authDomain: "oneq-7af56.firebaseapp.com",
-  databaseURL: "https://oneq-7af56.firebaseio.com",
-  projectId: "oneq-7af56",
-  storageBucket: "oneq-7af56.appspot.com",
-  messagingSenderId: "750210672673",
-  appId: "1:750210672673:web:b1daeead4aedeb00"
-};
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(config);
-}
 const db = firebase.firestore()
 
 // svgをpngに変換する関数
