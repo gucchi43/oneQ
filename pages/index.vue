@@ -5,7 +5,7 @@
       <svg ref="svgCard" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100">
         <rect x="0" y="0" height="100%" width="100%" fill="#00C8FF"></rect>
         <rect x="0" y="15%" height="85%" width="100%" fill="#7BE2FF" stroke="#00C8FF" stroke-width="24"></rect>
-        <text x="50%" y="14%" font-size="7px" text-anchor="middle" fill="#fff">5月25日の🐶Q</text>
+        <text x="50%" y="14%" font-size="7px" text-anchor="middle" fill="#fff">{{dateTitle}}の🐶Q</text>
         <text x="50%" y="23%" font-size="7px" text-anchor="middle" fill="#fff">"{{question.title}}"</text>
         <text x="50%" y="60%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg1}}</text>
         <text x="77%" y="95%" font-size="5px" text-anchor="right" fill="#fff">1日1問! oneQ!!!</text>
@@ -15,7 +15,7 @@
       <svg ref="svgCard" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100">
         <rect x="0" y="0" height="100%" width="100%" fill="#00C8FF"></rect>
         <rect x="0" y="15%" height="85%" width="100%" fill="#7BE2FF" stroke="#00C8FF" stroke-width="24"></rect>
-        <text x="50%" y="14%" font-size="7px" text-anchor="middle" fill="#fff">5月25日の🐶Q</text>
+        <text x="50%" y="14%" font-size="7px" text-anchor="middle" fill="#fff">{{dateTitle}}の🐶Q</text>
         <text x="50%" y="23%" font-size="7px" text-anchor="middle" fill="#fff">"{{question.title}}"</text>
         <text x="50%" y="55%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg1}}</text>
         <text x="50%" y="65%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg2}}</text>
@@ -26,7 +26,7 @@
       <svg ref="svgCard" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100">
         <rect x="0" y="0" height="100%" width="100%" fill="#00C8FF"></rect>
         <rect x="0" y="15%" height="85%" width="100%" fill="#7BE2FF" stroke="#00C8FF" stroke-width="24"></rect>
-        <text x="50%" y="14%" font-size="7px" text-anchor="middle" fill="#fff">5月25日の🐶Q</text>
+        <text x="50%" y="14%" font-size="7px" text-anchor="middle" fill="#fff">{{dateTitle}}の🐶Q</text>
         <text x="50%" y="23%" font-size="7px" text-anchor="middle" fill="#fff">"{{question.title}}"</text>
         <text x="50%" y="50%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg1}}</text>
         <text x="50%" y="60%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg2}}</text>
@@ -38,7 +38,7 @@
       <svg ref="svgCard" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100">
         <rect x="0" y="0" height="100%" width="100%" fill="#00C8FF"></rect>
         <rect x="0" y="15%" height="85%" width="100%" fill="#7BE2FF" stroke="#00C8FF" stroke-width="24"></rect>
-        <text x="50%" y="14%" font-size="7px" text-anchor="middle" fill="#fff">5月25日の🐶Q</text>
+        <text x="50%" y="14%" font-size="7px" text-anchor="middle" fill="#fff">{{dateTitle}}の🐶Q</text>
         <text x="50%" y="23%" font-size="7px" text-anchor="middle" fill="#fff">"{{question.title}}"</text>
         <text x="50%" y="45%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg1}}</text>
         <text x="50%" y="55%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg2}}</text>
@@ -75,9 +75,6 @@
     <button @click="twitterLogin" class="button is-info">
       Twitterでログインする
     </button>
-    <button @click="getQ" class="button is-info">
-      get ques!!!
-    </button>
     <button @click="logout" class="button is-info">
       ログアウトする
     </button>
@@ -90,6 +87,9 @@ import auth from '~/plugins/auth'
 import firebase from '~/plugins/firebase'
 import canvg from 'canvg'
 import shortid from 'shortid'
+import format from 'date-fns/format'
+import jaLocale from 'date-fns/locale/ja'
+import parse from 'date-fns/parse'
 import { mapGetters, mapActions } from 'vuex'
 
 const db = firebase.firestore()
@@ -129,7 +129,16 @@ export default {
   },
   async asyncData({ store }) {
     let checkUser
-    const toDayKey = 'v1_' + '20190610'
+
+    const today = format(
+      new Date(),
+      'YYYYMMDD',
+      {locale: jaLocale}
+    )
+
+    // const today = moment(new Date).format('YYYYMMDD');
+    const toDayKey = 'v1_' + today
+    // const toDayKey = 'v1_' + '20190610'
     // checkUser = await auth()
     // if (store.getters['user']) checkUser = await auth()
     await Promise.all([
@@ -189,6 +198,17 @@ export default {
     makeMsg4: function() {
       var result = this.msg.slice(thirdWrap, fourthWrap)
       return result
+    },
+    // 20190610 -> 6月10日 にコンバート
+    dateTitle: function() {
+      const date = this.question.date
+      const result = parse(date)
+      const today = format(
+        result,
+        'M月D日',
+        {locale: jaLocale}
+      )
+      return today
     }
   },
   methods: {
@@ -228,18 +248,18 @@ export default {
     twitterLogin() {
       var provider = new firebase.auth.TwitterAuthProvider();
       firebase.auth().signInWithPopup(provider).then(function(result) {
-        // This gives you a the Twitter OAuth 1.0 Access Token and Secret.
-        // You can use these server side with your app's credentials to access the Twitter API.
         var token = result.credential.accessToken;
         var secret = result.credential.secret;
         var user = result.user;
         var photoUrl = user.photoURL
         var displayName = user.displayName
+        var email = user.email
         var uid = user.uid
         // fireStore users に保存
         db.collection("users").doc(uid).set({
           name: displayName,
-          profileUrl: photoUrl
+          profileUrl: photoUrl,
+          email: email
         })
         .then(function() {
           console.log("Document successfully written!");
@@ -270,10 +290,6 @@ export default {
     twitterShare() {
       location.href = "https://twitter.com/intent/tweet?text=" + this.msg + "&hashtags=" + "oneQ,ワンキュー," + this.question + "&url=" + this.shareUrl
 
-    },
-    getQ() {
-      const ques = this.question
-      console.log("ques: ",  ques);
     }
   }
 }
