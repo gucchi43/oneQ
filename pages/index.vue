@@ -75,9 +75,6 @@
     <button @click="twitterLogin" class="button is-info">
       Twitterでログインする
     </button>
-    <button @click="getQ" class="button is-info">
-      get ques!!!
-    </button>
     <button @click="logout" class="button is-info">
       ログアウトする
     </button>
@@ -205,7 +202,6 @@ export default {
     // 20190610 -> 6月10日 にコンバート
     dateTitle: function() {
       const date = this.question.date
-      // Convert string '2014-02-11T11:30:30' to date:
       const result = parse(date)
       const today = format(
         result,
@@ -252,18 +248,18 @@ export default {
     twitterLogin() {
       var provider = new firebase.auth.TwitterAuthProvider();
       firebase.auth().signInWithPopup(provider).then(function(result) {
-        // This gives you a the Twitter OAuth 1.0 Access Token and Secret.
-        // You can use these server side with your app's credentials to access the Twitter API.
         var token = result.credential.accessToken;
         var secret = result.credential.secret;
         var user = result.user;
         var photoUrl = user.photoURL
         var displayName = user.displayName
+        var email = user.email
         var uid = user.uid
         // fireStore users に保存
         db.collection("users").doc(uid).set({
           name: displayName,
-          profileUrl: photoUrl
+          profileUrl: photoUrl,
+          email: email
         })
         .then(function() {
           console.log("Document successfully written!");
@@ -294,10 +290,6 @@ export default {
     twitterShare() {
       location.href = "https://twitter.com/intent/tweet?text=" + this.msg + "&hashtags=" + "oneQ,ワンキュー," + this.question + "&url=" + this.shareUrl
 
-    },
-    getQ() {
-      const ques = this.question
-      console.log("ques: ",  ques);
     }
   }
 }
