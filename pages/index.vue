@@ -6,7 +6,7 @@
         <rect x="0" y="0" height="100%" width="100%" fill="#00C8FF"></rect>
         <rect x="0" y="15%" height="85%" width="100%" fill="#7BE2FF" stroke="#00C8FF" stroke-width="24"></rect>
         <text x="50%" y="14%" font-size="7px" text-anchor="middle" fill="#fff">5月25日の🐶Q</text>
-        <text x="50%" y="23%" font-size="7px" text-anchor="middle" fill="#fff">"{{question}}"</text>
+        <text x="50%" y="23%" font-size="7px" text-anchor="middle" fill="#fff">"{{question.title}}"</text>
         <text x="50%" y="60%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg1}}</text>
         <text x="77%" y="95%" font-size="5px" text-anchor="right" fill="#fff">1日1問! oneQ!!!</text>
       </svg>
@@ -16,7 +16,7 @@
         <rect x="0" y="0" height="100%" width="100%" fill="#00C8FF"></rect>
         <rect x="0" y="15%" height="85%" width="100%" fill="#7BE2FF" stroke="#00C8FF" stroke-width="24"></rect>
         <text x="50%" y="14%" font-size="7px" text-anchor="middle" fill="#fff">5月25日の🐶Q</text>
-        <text x="50%" y="23%" font-size="7px" text-anchor="middle" fill="#fff">"{{question}}"</text>
+        <text x="50%" y="23%" font-size="7px" text-anchor="middle" fill="#fff">"{{question.title}}"</text>
         <text x="50%" y="55%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg1}}</text>
         <text x="50%" y="65%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg2}}</text>
         <text x="77%" y="95%" font-size="5px" text-anchor="right" fill="#fff">1日1問! oneQ!!!</text>
@@ -27,7 +27,7 @@
         <rect x="0" y="0" height="100%" width="100%" fill="#00C8FF"></rect>
         <rect x="0" y="15%" height="85%" width="100%" fill="#7BE2FF" stroke="#00C8FF" stroke-width="24"></rect>
         <text x="50%" y="14%" font-size="7px" text-anchor="middle" fill="#fff">5月25日の🐶Q</text>
-        <text x="50%" y="23%" font-size="7px" text-anchor="middle" fill="#fff">"{{question}}"</text>
+        <text x="50%" y="23%" font-size="7px" text-anchor="middle" fill="#fff">"{{question.title}}"</text>
         <text x="50%" y="50%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg1}}</text>
         <text x="50%" y="60%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg2}}</text>
         <text x="50%" y="70%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg3}}</text>
@@ -39,7 +39,7 @@
         <rect x="0" y="0" height="100%" width="100%" fill="#00C8FF"></rect>
         <rect x="0" y="15%" height="85%" width="100%" fill="#7BE2FF" stroke="#00C8FF" stroke-width="24"></rect>
         <text x="50%" y="14%" font-size="7px" text-anchor="middle" fill="#fff">5月25日の🐶Q</text>
-        <text x="50%" y="23%" font-size="7px" text-anchor="middle" fill="#fff">"{{question}}"</text>
+        <text x="50%" y="23%" font-size="7px" text-anchor="middle" fill="#fff">"{{question.title}}"</text>
         <text x="50%" y="45%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg1}}</text>
         <text x="50%" y="55%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg2}}</text>
         <text x="50%" y="65%" font-size="10px" text-anchor="middle" fill="#fff">{{makeMsg3}}</text>
@@ -47,6 +47,14 @@
         <text x="77%" y="95%" font-size="5px" text-anchor="right" fill="#fff">1日1問! oneQ!!!</text>
       </svg>
     </div>
+  </div>
+  <div>
+    <!-- <p>{{user}}</p> -->
+    <p v-if="user" >
+      <img :src="user.icon">
+      {{user.name}}
+    </p>
+    <p v-else >not signed</p>
   </div>
   <b-field>
     <b-input v-model="msg" type="textarea"></b-input>
@@ -67,6 +75,9 @@
     <button @click="twitterLogin" class="button is-info">
       Twitterでログインする
     </button>
+    <button @click="getQ" class="button is-info">
+      get ques!!!
+    </button>
     <button @click="logout" class="button is-info">
       ログアウトする
     </button>
@@ -75,11 +86,11 @@
 </template>
 
 <script>
+import auth from '~/plugins/auth'
 import firebase from '~/plugins/firebase'
 import canvg from 'canvg'
 import shortid from 'shortid'
-//  // Set the configuration for your app
-//   // TODO: Replace with your project's config object
+import { mapGetters, mapActions } from 'vuex'
 
 const db = firebase.firestore()
 
@@ -110,14 +121,44 @@ export default {
   components: {},
   data() {
     return {
-      question: '明日死ぬってわかったら何する？',
       msg: 'ふむふむ、いい質問ですね、',
       wrapNo: 1,
       uuid: shortid.generate(),
       shareUrl: ''
     }
   },
+  async asyncData({ store }) {
+    let checkUser
+    const toDayKey = 'v1_' + '20190610'
+    // checkUser = await auth()
+    // if (store.getters['user']) checkUser = await auth()
+    await Promise.all([
+      store.getters['question'] ? Promise.resolve() : store.dispatch('initQuestion', {dayKey: toDayKey}),
+      store.getters['questions'].length ? Promise.resolve() : store.dispatch('initQuestions'),
+      // store.getters['user'] ? Promise.resolve() : store.dispatch('setCredential', { user: user || null }),
+      // this.posts.length ? Promise.resolve() : this.$store.dispatch('initPosts'),)
+    ])
+    store.dispatch('loadComplete')
+    console.log("this is questions: ", store.questions)
+    console.log("this is question: ", store.question)
+    return {
+    }
+  },
+  async mounted() {
+    let authUser
+    if (!this.authUser) authUser = await auth()
+    console.log("ログインできてる", authUser)
+    await Promise.all([
+      this.authUser ? Promise.resolve() : this.$store.dispatch('setCredential', { authUser: authUser || null }),
+    ])
+    await Promise.all([
+      this.uesr ? Promise.resolve() : this.$store.dispatch('initUser', { uid: this.authUser.uid || null }),
+    ])
+    console.log("this is authUser: ", this.authUser)
+    // console.log("this is user: ", this.user)
+  },
   computed: {
+    ...mapGetters(['authUser','user','question', 'questions']),
     //改行する用の監視ロジック
     wrapNum: function() {
       var num = 1
@@ -151,6 +192,7 @@ export default {
     }
   },
   methods: {
+  ...mapActions(['loadComplete']),
     create() {
       let self = this
       // refでsvgCardをsvgに設定しているのでthis.$refs.svgCardで要素を取れます
@@ -228,6 +270,10 @@ export default {
     twitterShare() {
       location.href = "https://twitter.com/intent/tweet?text=" + this.msg + "&hashtags=" + "oneQ,ワンキュー," + this.question + "&url=" + this.shareUrl
 
+    },
+    getQ() {
+      const ques = this.question
+      console.log("ques: ",  ques);
     }
   }
 }
