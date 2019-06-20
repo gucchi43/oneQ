@@ -14,11 +14,14 @@
   },
   "dependencies": {
     "canvg": "^1.5.3",
-    "firebase": "^6.0.2",
+    "firebase": "^6.1.1",
+    "lodash.clonedeep": "^4.5.0",
     "nuxt": "^2.0.0",
     "nuxt-buefy": "^0.3.6",
     "shortid": "^2.2.14",
-    "vue-uuid": "^1.1.1"
+    "vue-uuid": "^1.1.1",
+    "vuefire": "^2.0.0-alpha.24",
+    "vuexfire": "^3.0.0-alpha.18"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.1",
